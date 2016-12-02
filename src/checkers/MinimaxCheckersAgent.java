@@ -24,9 +24,9 @@ public class MinimaxCheckersAgent extends Agent{
     int []fr = {1, 1, -1, -1, 2, 2, -2, -2};
     int []fc = {1, -1, -1, 1, 2, -2, -2, 2};
     
-    public MinimaxCheckersAgent(String name) {
+    public MinimaxCheckersAgent(String name, int depthLimit) {
         super(name);
-        cutOffDepth = 7;
+        cutOffDepth = depthLimit;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class MinimaxCheckersAgent extends Agent{
         
         //depth limit
         if(curDepth >= cutOffDepth){
-            cur.moveUtilVal = utility_for_MAX(cell, game.board.currentPlayer);
+            cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
             return cur;
         }
         
@@ -141,7 +141,7 @@ public class MinimaxCheckersAgent extends Agent{
         
         if(candMoves == 0){
             //terminal state
-            cur.moveUtilVal = utility_for_MAX(cell, game.board.currentPlayer);
+            cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
         }
         
         return cur;
@@ -153,7 +153,7 @@ public class MinimaxCheckersAgent extends Agent{
         
         //depth limit
         if(curDepth >= cutOffDepth){
-            cur.moveUtilVal = utility_for_MAX(cell, game.board.currentPlayer);
+            cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
             return cur;
         }
         
@@ -214,28 +214,54 @@ public class MinimaxCheckersAgent extends Agent{
         
         if(candMoves == 0){
             //terminal state
-            cur.moveUtilVal = utility_for_MAX(cell, game.board.currentPlayer);
+            cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
         }
         
         return cur;
     }
     
     
-    private int utility_for_MAX(JButton []cell, ImageIcon currentPlayer){
-        int mycheckerCount = 0;
+    private int utility_for_MAX(checkerGame game, JButton []cell, ImageIcon currentPlayer){
+        
+        ImageIcon opponentPlayer = null;
+        if(currentPlayer == game.board.red) opponentPlayer = game.board.black;
+        else opponentPlayer = game.board.black;
+        
+        int add = 0, sub = 0;
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 if(cell[i*8+j].getIcon() == currentPlayer){
-                    if("K".equals(cell[i*8+j].getText())) mycheckerCount += 2;
-                    else mycheckerCount++;
+                    if("K".equals(cell[i*8+j].getText())) add += 2; /// 2 points for kings
+                    else add++; /// 1 point for normal checker
+                    
+                    for(int k=4; k<8; k++){
+                        int ni = i+fr[i], nj = j+fc[j];
+                        if(ni < 0 || ni > 7 || nj < 0 || nj > 7) continue;
+                        if(game.board.validMove(cell, currentPlayer, ni, nj, i, j, false)){
+                            add++; /// 1 additional point for attacker checker 
+                        }
+                    }
+                    
+                    if(i == 0 || j == 0 || i == 7 || j == 7) add++; /// 1 point for safe checkers
                 }
                 else if(cell[i*8+j].getIcon() != null){
-                    if("K".equals(cell[i*8+j].getText())) mycheckerCount -=2;
-                    else mycheckerCount--;
+                    if("K".equals(cell[i*8+j].getText())) sub += 2; /// -2 points for opponent kings
+                    else sub++;  /// -1 point for normal opponent
+                    
+                    for(int k=4; k<8; k++){
+                        int ni = i+fr[i], nj = j+fc[j];
+                        if(ni < 0 || ni > 7 || nj < 0 || nj > 7) continue;
+                        if(game.board.validMove(cell, opponentPlayer, ni, nj, i, j, false)){
+                            sub++; /// -1 additional point for attacker opponent checker 
+                        }
+                    }
+                    
+                    if(i == 0 || j == 0 || i == 7 || j == 7) sub++; /// -1 point for safe opponent checkers
                 }
+                
             }
         }
-        return mycheckerCount;
+        return add - 3*sub;
     }
 
     class action{

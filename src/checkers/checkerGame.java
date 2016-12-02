@@ -28,6 +28,9 @@ public class checkerGame extends Game{
         board = new CheckerBoard();
         board.setTitle("Checkers");
         
+        board.player1.setText(a.name);
+        board.player2.setText(b.name);
+        
         board.setSize(1050, 700);
         board.setLocationRelativeTo(null);
         board.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -40,7 +43,7 @@ public class checkerGame extends Game{
         showStaus(name + " between " + agent[0].name + " and " + agent[1].name + ".");
         int turn = random.nextInt(2);
 
-        updateMessage(agent[turn].name+ " makes the first move.");
+        board.starter.setText(agent[turn].name+ " made the first move.");
         
         //initialize(false);
         
@@ -60,7 +63,10 @@ public class checkerGame extends Game{
         }
 
        
-        if (winner != null) updateMessage(winner.name + " wins!!!");
+        if (winner != null){
+            updateMessage(winner.name + " wins!!!");
+            JOptionPane.showMessageDialog(board, winner.name + " wins!!!");
+        }
         else updateMessage("Game drawn!!");
         
     }

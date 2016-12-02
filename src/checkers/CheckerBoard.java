@@ -11,6 +11,7 @@ package checkers;
  */
 import java.awt.Color;
 import static java.awt.FlowLayout.RIGHT;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -27,7 +28,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
     JButton[] cell;
     ImageIcon red, black, currentPlayer;
     JPanel boardJPanel, statJPanel, allJPanel; 
-    JLabel statusJLabel, currentPlayerJLabel, msgJLabel, player1, player2;
+    JLabel statusJLabel, currentPlayerJLabel, msgJLabel, player1, player2, starter;
     
     boolean mouseClickEnable;
     int firstClickedRow, firstClickedCol, mouseClicked;
@@ -77,13 +78,18 @@ public class CheckerBoard extends JFrame implements ActionListener{
         
         statusJLabel = new JLabel();
         
-        player1 = new JLabel("Alice", red, RIGHT);
-        player2 = new JLabel("Bob", black, RIGHT);
+        String defaultLabelFont = statusJLabel.getFont().getFontName();
+        statusJLabel.setFont(new Font(defaultLabelFont, Font.PLAIN, 13));
+        
+        starter = new JLabel("");
+        player1 = new JLabel("", red, RIGHT);
+        player2 = new JLabel("", black, RIGHT);
         
         currentPlayerJLabel = new JLabel();
         msgJLabel = new JLabel();
         
         statusJPanel.add(statusJLabel);
+        statusJPanel.add(starter);
         statusJPanel.add(player1);
         statusJPanel.add(player2);
         statusJPanel.add(currentPlayerJLabel);
