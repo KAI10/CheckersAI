@@ -5,6 +5,7 @@
  */
 package checkers;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 /**
@@ -17,6 +18,9 @@ public class checkerGame extends Game{
             
     public checkerGame(Agent a, Agent b) {
         super(a, b);
+        
+        agent[0].setRole(0);
+        agent[1].setRole(1);
         
         name = " Checkers game\n";
         
@@ -34,6 +38,7 @@ public class checkerGame extends Game{
     private void play() {
         showStaus(name + " between " + agent[0].name + " and " + agent[1].name + ".");
         int turn = random.nextInt(2);
+        turn = 1;
 
         updateMessage(agent[turn].name+ " makes the first move.");
         
@@ -42,13 +47,14 @@ public class checkerGame extends Game{
        
         while (!isFinished()) {
             updateMessage(agent[turn].name + "'s turn. ");
+            System.out.println(agent[turn].name + "'s turn. ");
             
             if(turn == 0) board.currentPlayer = board.red;
             else board.currentPlayer = board.black;
             
             agent[turn].makeMove(this);
             //showGameState();
-
+            
             turn = (turn + 1) % 2;
             
         }
@@ -64,6 +70,8 @@ public class checkerGame extends Game{
     
     @Override
     boolean isFinished() {
+        if(winner != null) return true;
+        
         int redCount = 0, blackCount = 0;
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
@@ -89,9 +97,17 @@ public class checkerGame extends Game{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    void showGameState() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    void showGameState(JButton []cell) {
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if(cell[i*8 + j].getIcon() == board.currentPlayer) System.out.print("B ");
+                else if(cell[i*8+j].getIcon()  == null) System.out.print("0 ");
+                else System.out.print("H ");
+            }
+            System.out.println();
+        }
+        
+        System.out.println();
     }
 
     @Override
@@ -105,6 +121,11 @@ public class checkerGame extends Game{
     
     void showMsg(String msg){
         board.msgJLabel.setText(msg);
+    }
+
+    @Override
+    void showGameState() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

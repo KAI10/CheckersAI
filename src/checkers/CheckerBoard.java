@@ -125,10 +125,16 @@ public class CheckerBoard extends JFrame implements ActionListener{
         //System.out.println(cell[40].getIcon() == red);
     }
     
-    public void move(int sr, int sc, int dr, int dc){
+    public void move(JButton[]cell, int sr, int sc, int dr, int dc){
         cell[dr*8+dc].setIcon(cell[sr*8+sc].getIcon());
         cell[dr*8+dc].setText(cell[sr*8+sc].getText());
         cell[sr*8+sc].setIcon(null);
+        cell[sr*8+sc].setText(null);
+        
+        if(Math.abs(sr-dr) == 2){
+            int midRow = (sr+dr)/2, midCol = (sc+dc)/2;
+            cell[midRow*8+midCol].setIcon(null);
+        }
         
         if(currentPlayer == red && dr == 0) cell[dr*8+dc].setText("K");
         if(currentPlayer == black && dr == 7) cell[dr*8+dc].setText("K");
@@ -160,43 +166,39 @@ public class CheckerBoard extends JFrame implements ActionListener{
         
         if(mouseClicked == 1){
             //check if valid move
-            if(!validMove(row, col)){
+            if(!validMove(cell, currentPlayer, row, col, firstClickedRow, firstClickedCol)){
                 msgJLabel.setText("Invalid Move");
                 mouseClicked = 0;
             }
             else{
                 mouseClicked = 2;
-                move(firstClickedRow, firstClickedCol, row, col);
+                move(cell, firstClickedRow, firstClickedCol, row, col);
                 msgJLabel.setText("");
             }
             
         }
     }
     
-    boolean validMove(int row, int col){
+    boolean validMove(JButton[]cell, ImageIcon currentPlayer, int row, int col, int fromRow, int fromCol){
         
         //check if destination position is empty
         if(cell[row*8+col].getIcon() != null) return false;
         
         //check if row/col move > 2
-        int drow = Math.abs(firstClickedRow - row), dcol = Math.abs(firstClickedCol - col);
+        int drow = Math.abs(fromRow - row), dcol = Math.abs(fromCol - col);
         if(drow != dcol || drow > 2 || dcol > 2) return false;
         
         //check if king movement done by normal checker
-        if(!"K".equals(cell[firstClickedRow*8+firstClickedCol].getText()) && (currentPlayer == red && row > firstClickedRow || 
-                currentPlayer == black && row < firstClickedRow)) return false;
+        if(cell[fromRow*8+fromCol].getText() == "" && ((currentPlayer == red && row > fromRow) || 
+                (currentPlayer == black && row < fromRow))) return false;
         
         //if 2, then check if an opponent checker is in between, if yes capture that checker 
         if(drow == 2){
-            int midRow = (firstClickedRow+row)/2, midCol = (firstClickedCol+col)/2;
+            int midRow = (fromRow+row)/2, midCol = (fromCol+col)/2;
             ImageIcon midChecker = (ImageIcon) cell[midRow*8+midCol].getIcon();
             if(midChecker == null || midChecker == currentPlayer) return false;
-            else{
-                cell[midRow*8+midCol].setIcon(null);
-                return true;
-            }
+            else return true;
         }
-        
         return true;
     }
 

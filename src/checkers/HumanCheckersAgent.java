@@ -14,17 +14,45 @@ import java.util.logging.Logger;
  */
 public class HumanCheckersAgent extends Agent{
 
+    int []fr = {1, 1, -1, -1, 2, 2, -2, -2};
+    int []fc = {1, -1, -1, 1, 2, -2, -2, 2};
+    
     public HumanCheckersAgent(String name) {
         super(name);
     }
 
     @Override
-    public void makeMove(Game game) {
-        System.out.println(name + "'s move.");
-        checkerGame cgame = (checkerGame) game;
-        cgame.board.mouseClickEnable = true;
+    public void makeMove(Game cgame) {
+        //System.out.println(name + "'s move.");
         
-        while(cgame.board.mouseClicked != 2) {
+        checkerGame game = (checkerGame)cgame;
+        int candMoves = 0;
+        
+        for(int row=0; row<8; row++){
+            for(int col=0; col<8; col++){
+                if(game.board.cell[row*8 + col].getIcon() == null || 
+                   game.board.cell[row*8 + col].getIcon() != game.board.currentPlayer) continue;
+                
+                for(int i=0; i<8; i++){
+                    int nrow = row + fr[i], ncol = col + fc[i];
+                    if(nrow < 0 || nrow > 7 || ncol < 0 || ncol > 7) continue;
+                    
+                    if(game.board.validMove(game.board.cell, game.board.currentPlayer, nrow, ncol, row, col)){
+                        candMoves++;
+                    }
+                }
+            }
+        }
+        
+        if(candMoves == 0){
+            game.winner = game.agent[1-role];
+            return;
+        }
+        
+        
+        game.board.mouseClickEnable = true;
+        
+        while(game.board.mouseClicked != 2) {
             try {
                 //System.out.println(cgame.board.mouseClicked);
                 Thread.sleep(500);
@@ -33,10 +61,10 @@ public class HumanCheckersAgent extends Agent{
             }
         }
         
-        cgame.board.mouseClicked = 0;
-        cgame.board.mouseClickEnable = false;
+        game.board.mouseClicked = 0;
+        game.board.mouseClickEnable = false;
         
-        System.out.println(name + "'s move complete.");
+        //System.out.println(name + "'s move complete.");
     }
     
 }
