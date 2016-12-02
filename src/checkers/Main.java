@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         // TODO code application logic here
         
-        Agent Alice = new MinimaxCheckersAgent("Alice");
+        Agent Alice = new HumanCheckersAgent("Alice");
         Agent Bob = new MinimaxCheckersAgent("Bob");
         
         Game game = new checkerGame(Alice, Bob);

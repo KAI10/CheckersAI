@@ -125,20 +125,6 @@ public class CheckerBoard extends JFrame implements ActionListener{
         //System.out.println(cell[40].getIcon() == red);
     }
     
-    public void move(JButton[]cell, int sr, int sc, int dr, int dc){
-        cell[dr*8+dc].setIcon(cell[sr*8+sc].getIcon());
-        cell[dr*8+dc].setText(cell[sr*8+sc].getText());
-        cell[sr*8+sc].setIcon(null);
-        cell[sr*8+sc].setText(null);
-        
-        if(Math.abs(sr-dr) == 2){
-            int midRow = (sr+dr)/2, midCol = (sc+dc)/2;
-            cell[midRow*8+midCol].setIcon(null);
-        }
-        
-        if(currentPlayer == red && dr == 0) cell[dr*8+dc].setText("K");
-        if(currentPlayer == black && dr == 7) cell[dr*8+dc].setText("K");
-    }
     
     @Override
     public void actionPerformed(ActionEvent ae){
@@ -166,7 +152,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
         
         if(mouseClicked == 1){
             //check if valid move
-            if(!validMove(cell, currentPlayer, row, col, firstClickedRow, firstClickedCol)){
+            if(!validMove(cell, currentPlayer, row, col, firstClickedRow, firstClickedCol, true)){
                 msgJLabel.setText("Invalid Move");
                 mouseClicked = 0;
             }
@@ -179,7 +165,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
         }
     }
     
-    boolean validMove(JButton[]cell, ImageIcon currentPlayer, int row, int col, int fromRow, int fromCol){
+    boolean validMove(JButton[]cell, ImageIcon currentPlayer, int row, int col, int fromRow, int fromCol, boolean inGUI){
         
         //check if destination position is empty
         if(cell[row*8+col].getIcon() != null) return false;
@@ -189,7 +175,14 @@ public class CheckerBoard extends JFrame implements ActionListener{
         if(drow != dcol || drow > 2 || dcol > 2) return false;
         
         //check if king movement done by normal checker
-        if(cell[fromRow*8+fromCol].getText() == "" && ((currentPlayer == red && row > fromRow) || 
+        /*
+        if(inGUI && cell[fromRow*8+fromCol].getText().equals("K")){
+            System.err.println(""+fromRow+" "+fromCol);
+            System.err.println("K");
+        }
+        */
+        
+        if(!"K".equals(cell[fromRow*8+fromCol].getText()) && ((currentPlayer == red && row > fromRow) || 
                 (currentPlayer == black && row < fromRow))) return false;
         
         //if 2, then check if an opponent checker is in between, if yes capture that checker 
@@ -200,6 +193,31 @@ public class CheckerBoard extends JFrame implements ActionListener{
             else return true;
         }
         return true;
+    }
+    
+    public boolean move(JButton[]cell, int sr, int sc, int dr, int dc){
+        cell[dr*8+dc].setIcon(cell[sr*8+sc].getIcon());
+        cell[dr*8+dc].setText(cell[sr*8+sc].getText());
+        cell[sr*8+sc].setIcon(null);
+        cell[sr*8+sc].setText(null);
+        
+        if(Math.abs(sr-dr) == 2){
+            int midRow = (sr+dr)/2, midCol = (sc+dc)/2;
+            cell[midRow*8+midCol].setIcon(null);
+            cell[midRow*8+midCol].setText(null);
+        }
+        
+        boolean crowned = false;
+        if(currentPlayer == red && dr == 0 && !"K".equals(cell[dr*8+dc].getText())){
+            cell[dr*8+dc].setText("K");
+            crowned = true;
+        }
+        if(currentPlayer == black && dr == 7 && !"K".equals(cell[dr*8+dc].getText())){
+            cell[dr*8+dc].setText("K");
+            crowned = true;
+        }
+        
+        return crowned;
     }
 
 }

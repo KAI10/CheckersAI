@@ -37,7 +37,7 @@ public class HumanCheckersAgent extends Agent{
                     int nrow = row + fr[i], ncol = col + fc[i];
                     if(nrow < 0 || nrow > 7 || ncol < 0 || ncol > 7) continue;
                     
-                    if(game.board.validMove(game.board.cell, game.board.currentPlayer, nrow, ncol, row, col)){
+                    if(game.board.validMove(game.board.cell, game.board.currentPlayer, nrow, ncol, row, col, true)){
                         candMoves++;
                     }
                 }
