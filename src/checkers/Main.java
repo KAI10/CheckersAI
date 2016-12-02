@@ -5,6 +5,8 @@
  */
 package checkers;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author ashik
@@ -17,8 +19,19 @@ public class Main {
     public static void main(String[] args) {
         // TODO code application logic here
         
-        Agent Alice = new HumanCheckersAgent("Alice");
+        String[] buttons = { "Human vs Computer", "Computer vs Computer" };
+        
+        int mode = -1;
+        mode = JOptionPane.showOptionDialog(null, "Mode ?", "Checkers", JOptionPane.YES_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, null, buttons, buttons[1]);
+        
+        System.out.println(mode);
+        
         Agent Bob = new MinimaxCheckersAgent("Bob");
+        Agent Alice;
+
+        if(mode == 0) Alice = new HumanCheckersAgent("Alice");
+        else Alice = new MinimaxCheckersAgent("Alice");
         
         Game game = new checkerGame(Alice, Bob);
         //game.play();

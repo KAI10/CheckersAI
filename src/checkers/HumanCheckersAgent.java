@@ -39,6 +39,9 @@ public class HumanCheckersAgent extends Agent{
                     
                     if(game.board.validMove(game.board.cell, game.board.currentPlayer, nrow, ncol, row, col, true)){
                         candMoves++;
+                        
+                        game.board.cell[row*8+col].setBackground(java.awt.Color.orange);
+                        game.board.cell[nrow*8+ncol].setBackground(java.awt.Color.cyan);
                     }
                 }
             }
@@ -63,6 +66,12 @@ public class HumanCheckersAgent extends Agent{
         
         game.board.mouseClicked = 0;
         game.board.mouseClickEnable = false;
+        
+        for(int row=0; row<8; row++){
+            for(int col=0; col<8; col++){
+                if((row+col)%2 == 1) game.board.cell[row*8+col].setBackground(java.awt.Color.white);
+            }    
+        }
         
         //System.out.println(name + "'s move complete.");
     }

@@ -27,7 +27,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
     JButton[] cell;
     ImageIcon red, black, currentPlayer;
     JPanel boardJPanel, statJPanel, allJPanel; 
-    JLabel statusJLabel, currentPlayerJLabel, msgJLabel;
+    JLabel statusJLabel, currentPlayerJLabel, msgJLabel, player1, player2;
     
     boolean mouseClickEnable;
     int firstClickedRow, firstClickedCol, mouseClicked;
@@ -77,8 +77,8 @@ public class CheckerBoard extends JFrame implements ActionListener{
         
         statusJLabel = new JLabel();
         
-        JLabel player1 = new JLabel("Alice", red, RIGHT);
-        JLabel player2 = new JLabel("Bob", black, RIGHT);
+        player1 = new JLabel("Alice", red, RIGHT);
+        player2 = new JLabel("Bob", black, RIGHT);
         
         currentPlayerJLabel = new JLabel();
         msgJLabel = new JLabel();
@@ -123,6 +123,34 @@ public class CheckerBoard extends JFrame implements ActionListener{
         
         
         //System.out.println(cell[40].getIcon() == red);
+    }
+    
+    public void boardReset(){
+        
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8;j++){
+                if((i+j)%2 == 0){
+                    cell[i*8 + j] = new JButton();
+                    cell[i*8 + j].setBackground(Color.lightGray);
+                }
+                else{
+                    cell[i*8 + j] = new JButton();
+                    cell[i*8 + j].setBackground(Color.white);
+                    cell[i*8+j].setForeground(Color.WHITE);
+                   
+                    cell[i*8+j].setHorizontalTextPosition(JButton.CENTER);
+                    cell[i*8+j].setVerticalTextPosition(JButton.CENTER);
+                    
+                    if(i<3) cell[i*8 + j].setIcon(black);
+                    else if(i>4) cell[i*8 + j].setIcon(red);
+                                      
+                    cell[i*8 + j].putClientProperty("row", i);
+                    cell[i*8 + j].putClientProperty("column", j);
+                    cell[i*8 + j].addActionListener((ActionListener) this);
+                }
+            }
+        }
+        
     }
     
     

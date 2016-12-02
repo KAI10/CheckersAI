@@ -5,6 +5,7 @@
  */
 package checkers;
 
+import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -25,19 +26,11 @@ public class MinimaxCheckersAgent extends Agent{
     
     public MinimaxCheckersAgent(String name) {
         super(name);
-        cutOffDepth = 5;
+        cutOffDepth = 7;
     }
 
     @Override
     public void makeMove(Game game) {
-        
-        
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MinimaxCheckersAgent.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
         
         checkerGame cgame = (checkerGame)game;
         
@@ -51,12 +44,37 @@ public class MinimaxCheckersAgent extends Agent{
             return;
         }
         
+        /*********************** FOR SHOW *************************************/
         //show move in console
         System.err.println(""+A.fromRow+" "+A.fromCol);
         System.err.println(""+A.toRow+" "+A.toCol);
         
+        cgame.board.cell[A.fromRow*8+A.fromCol].setBackground(Color.pink);
+        cgame.board.cell[A.toRow*8+A.toCol].setBackground(Color.cyan);
+        /**********************************************************************/
+        
+        /*********************** FOR SHOW *************************************/
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MinimaxCheckersAgent.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        /**********************************************************************/
+        
         //make move in gui
         cgame.board.move(cgame.board.cell, A.fromRow, A.fromCol, A.toRow, A.toCol);
+        
+        /*********************** FOR SHOW *************************************/
+        try {
+            Thread.sleep(700);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MinimaxCheckersAgent.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        cgame.board.cell[A.fromRow*8+A.fromCol].setBackground(Color.white);
+        cgame.board.cell[A.toRow*8+A.toCol].setBackground(Color.white);
+        /**********************************************************************/
+        
     }
 
     private action MAX_VALUE(checkerGame game, JButton[] cell, int alpha, int beta, int curDepth) {
@@ -66,9 +84,6 @@ public class MinimaxCheckersAgent extends Agent{
         //depth limit
         if(curDepth >= cutOffDepth){
             cur.moveUtilVal = utility_for_MAX(cell, game.board.currentPlayer);
-            
-            //do we need to mention source and destination here ?
-            
             return cur;
         }
         
@@ -82,8 +97,6 @@ public class MinimaxCheckersAgent extends Agent{
                     
                     if(game.board.validMove(cell, game.board.currentPlayer, nrow, ncol, row, col, false)){
                         candMoves++;
-                        
-                        //if(curDepth == 0) System.err.println("cand: "+row+" "+col+" -> " + nrow + " " + ncol);
                         
                         //save necessary info for backtracking
                         int midRow = 0, midCol = 0;
@@ -141,9 +154,6 @@ public class MinimaxCheckersAgent extends Agent{
         //depth limit
         if(curDepth >= cutOffDepth){
             cur.moveUtilVal = utility_for_MAX(cell, game.board.currentPlayer);
-            
-            //do we need to mention source and destination here ?
-            
             return cur;
         }
         
@@ -210,11 +220,6 @@ public class MinimaxCheckersAgent extends Agent{
         return cur;
     }
     
-    /*
-    private int heuristicEval(JButton []cell, ImageIcon currentPlayer) {
-        return 0;
-    }
-    */
     
     private int utility_for_MAX(JButton []cell, ImageIcon currentPlayer){
         int mycheckerCount = 0;
@@ -233,7 +238,6 @@ public class MinimaxCheckersAgent extends Agent{
         return mycheckerCount;
     }
 
-    
     class action{
         int fromRow, fromCol, toRow, toCol, moveUtilVal;
 
@@ -244,10 +248,6 @@ public class MinimaxCheckersAgent extends Agent{
             toCol = -1;
             this.moveUtilVal = moveUtilVal;
         }
-        
-        
-        
     }
 
-    
 }

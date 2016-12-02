@@ -7,6 +7,7 @@ package checkers;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -38,7 +39,6 @@ public class checkerGame extends Game{
     private void play() {
         showStaus(name + " between " + agent[0].name + " and " + agent[1].name + ".");
         int turn = random.nextInt(2);
-        turn = 1;
 
         updateMessage(agent[turn].name+ " makes the first move.");
         
@@ -60,11 +60,8 @@ public class checkerGame extends Game{
         }
 
        
-        if (winner != null) {
-            updateMessage(winner.name + " wins!!!");
-        } else {
-            updateMessage("Game drawn!!");
-        }
+        if (winner != null) updateMessage(winner.name + " wins!!!");
+        else updateMessage("Game drawn!!");
         
     }
     
