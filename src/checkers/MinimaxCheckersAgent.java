@@ -275,8 +275,8 @@ public class MinimaxCheckersAgent extends Agent{
         int myTotalCheckers = myNormalCheckers + myKingCheckers, opTotalCheckers = opNormalCheckers + opKingCheckers;
         
         //special condition for win and lose
-        if(opTotalCheckers == 0 || opCantMove == opTotalCheckers) return 1000;
-        if(myTotalCheckers == 0 || myCantMove == myTotalCheckers) return -1000;
+        if(opTotalCheckers - opCantMove == 0) return 1000;
+        if(myTotalCheckers - myCantMove == 0) return -1000;
         
         return (myNormalCheckers + 2*myKingCheckers + 2*myAttackerCheckers + 2*mySafeCheckers) - 
                (opNormalCheckers + 3*opKingCheckers + 3*opAttackerCheckers + opSafeCheckers) + 
