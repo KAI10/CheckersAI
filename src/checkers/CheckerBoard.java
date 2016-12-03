@@ -46,6 +46,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
             for(int j=0; j<8;j++){
                 if((i+j)%2 == 0){
                     cell[i*8 + j] = new JButton();
+                    cell[i*8 + j].setEnabled(false);
                     cell[i*8 + j].setBackground(Color.lightGray);
                 }
                 else{

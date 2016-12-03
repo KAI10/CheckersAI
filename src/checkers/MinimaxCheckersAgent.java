@@ -227,41 +227,60 @@ public class MinimaxCheckersAgent extends Agent{
         if(currentPlayer == game.board.red) opponentPlayer = game.board.black;
         else opponentPlayer = game.board.black;
         
-        int add = 0, sub = 0;
+        int myNormalCheckers = 0, myKingCheckers = 0, myAttackerCheckers = 0, mySafeCheckers = 0, myCantMove = 0,
+            opNormalCheckers = 0, opKingCheckers = 0, opAttackerCheckers = 0, opSafeCheckers = 0, opCantMove = 0;
+        
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 if(cell[i*8+j].getIcon() == currentPlayer){
-                    if("K".equals(cell[i*8+j].getText())) add += 2; /// 2 points for kings
-                    else add++; /// 1 point for normal checker
+                    if("K".equals(cell[i*8+j].getText())) myKingCheckers++; /// 2 points for kings
+                    else myNormalCheckers++; /// 1 point for normal checker
                     
-                    for(int k=4; k<8; k++){
+                    boolean canMove = false;
+                    for(int k=0; k<8; k++){
                         int ni = i+fr[i], nj = j+fc[j];
                         if(ni < 0 || ni > 7 || nj < 0 || nj > 7) continue;
                         if(game.board.validMove(cell, currentPlayer, ni, nj, i, j, false)){
-                            add++; /// 1 additional point for attacker checker 
+                            canMove = true;
+                            if(k>4) myAttackerCheckers++; /// 1 additional point for attacker checker 
                         }
                     }
                     
-                    if(i == 0 || j == 0 || i == 7 || j == 7) add++; /// 1 point for safe checkers
+                    if(!canMove) myCantMove++;
+                    if(i == 0 || j == 0 || i == 7 || j == 7) mySafeCheckers++; /// 1 point for safe checkers
                 }
+                
+                ///consider opponent checkers
                 else if(cell[i*8+j].getIcon() != null){
-                    if("K".equals(cell[i*8+j].getText())) sub += 2; /// -2 points for opponent kings
-                    else sub++;  /// -1 point for normal opponent
+                    if("K".equals(cell[i*8+j].getText())) opKingCheckers++; /// -2 points for opponent kings
+                    else opNormalCheckers++;  /// -1 point for normal opponent
                     
-                    for(int k=4; k<8; k++){
+                    boolean canMove = false;
+                    for(int k=0; k<8; k++){
                         int ni = i+fr[i], nj = j+fc[j];
                         if(ni < 0 || ni > 7 || nj < 0 || nj > 7) continue;
                         if(game.board.validMove(cell, opponentPlayer, ni, nj, i, j, false)){
-                            sub++; /// -1 additional point for attacker opponent checker 
+                            canMove = true;
+                            if(k>4) opAttackerCheckers++; /// -1 additional point for attacker opponent checker 
                         }
                     }
                     
-                    if(i == 0 || j == 0 || i == 7 || j == 7) sub++; /// -1 point for safe opponent checkers
+                    if(!canMove) opCantMove++;
+                    if(i == 0 || j == 0 || i == 7 || j == 7) opSafeCheckers++; /// -1 point for safe opponent checkers
                 }
                 
             }
         }
-        return add - 3*sub;
+        
+        int myTotalCheckers = myNormalCheckers + myKingCheckers, opTotalCheckers = opNormalCheckers + opKingCheckers;
+        
+        //special condition for win and lose
+        if(opTotalCheckers == 0 || opCantMove == opTotalCheckers) return 1000;
+        if(myTotalCheckers == 0 || myCantMove == myTotalCheckers) return -1000;
+        
+        return (myNormalCheckers + 2*myKingCheckers + 2*myAttackerCheckers + 2*mySafeCheckers) - 
+               (opNormalCheckers + 3*opKingCheckers + 3*opAttackerCheckers + opSafeCheckers) + 
+                opCantMove - 2*myCantMove;
     }
 
     class action{

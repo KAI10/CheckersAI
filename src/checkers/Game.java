@@ -66,4 +66,6 @@ public abstract class Game {
      * Shows game messages in console, or in the GUI
      */
     abstract void updateMessage(String msg);
+    
+    abstract void exit();
 }

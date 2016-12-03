@@ -5,6 +5,7 @@
  */
 package checkers;
 
+import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -17,7 +18,7 @@ public class checkerGame extends Game{
 
     CheckerBoard board;
             
-    public checkerGame(Agent a, Agent b) {
+    public checkerGame(Agent a, Agent b) throws InterruptedException {
         super(a, b);
         
         agent[0].setRole(0);
@@ -39,7 +40,7 @@ public class checkerGame extends Game{
         play();
     }
 
-    private void play() {
+    private void play() throws InterruptedException {
         showStaus(name + " between " + agent[0].name + " and " + agent[1].name + ".");
         int turn = random.nextInt(2);
 
@@ -69,6 +70,9 @@ public class checkerGame extends Game{
         }
         else updateMessage("Game drawn!!");
         
+        Thread.sleep(500);
+        board.setVisible(false);
+        board.setEnabled(false);
     }
     
     @Override
@@ -130,5 +134,9 @@ public class checkerGame extends Game{
     void showGameState() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    @Override
+    void exit() {
+        board.dispatchEvent(new WindowEvent(board, WindowEvent.WINDOW_CLOSING));
+    }
 }
