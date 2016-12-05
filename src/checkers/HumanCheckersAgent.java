@@ -22,7 +22,7 @@ public class HumanCheckersAgent extends Agent{
     }
 
     @Override
-    public void makeMove(Game cgame) {
+    public boolean makeMove(Game cgame) {
         //System.out.println(name + "'s move.");
         
         checkerGame game = (checkerGame)cgame;
@@ -49,7 +49,7 @@ public class HumanCheckersAgent extends Agent{
         
         if(candMoves == 0){
             game.winner = game.agent[1-role];
-            return;
+            return false;
         }
         
         
@@ -74,6 +74,7 @@ public class HumanCheckersAgent extends Agent{
         }
         
         //System.out.println(name + "'s move complete.");
+        return game.board.jumpByHumanAgent;
     }
     
 }

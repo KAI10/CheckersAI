@@ -40,6 +40,6 @@ public abstract class Agent {
      *
      * @param game
      */
-    public abstract void makeMove(Game game);
+    public abstract boolean makeMove(Game game);
 
 }

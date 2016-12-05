@@ -17,7 +17,8 @@ import javax.swing.JOptionPane;
 public class checkerGame extends Game{
 
     CheckerBoard board;
-            
+    int moveLimitToDraw, remainingMovesToDraw;
+    
     public checkerGame(Agent a, Agent b) throws InterruptedException {
         super(a, b);
         
@@ -36,7 +37,8 @@ public class checkerGame extends Game{
         board.setLocationRelativeTo(null);
         board.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         board.setVisible(true);
-        
+    
+        moveLimitToDraw = 50;
         play();
     }
 
@@ -47,7 +49,7 @@ public class checkerGame extends Game{
         board.starter.setText(agent[turn].name+ " made the first move.");
         
         //initialize(false);
-        
+        remainingMovesToDraw = moveLimitToDraw;
        
         while (!isFinished()) {
             updateMessage(agent[turn].name + "'s turn. ");
@@ -56,8 +58,11 @@ public class checkerGame extends Game{
             if(turn == 0) board.currentPlayer = board.red;
             else board.currentPlayer = board.black;
             
-            agent[turn].makeMove(this);
+            boolean jumped = agent[turn].makeMove(this);
             //showGameState();
+            
+            remainingMovesToDraw = (!jumped)? remainingMovesToDraw - 1: moveLimitToDraw;
+            showMsg("Remaining moves to Draw: " + remainingMovesToDraw);
             
             turn = (turn + 1) % 2;
             
@@ -68,7 +73,10 @@ public class checkerGame extends Game{
             updateMessage(winner.name + " wins!!!");
             JOptionPane.showMessageDialog(board, winner.name + " wins!!!");
         }
-        else updateMessage("Game drawn!!");
+        else{
+            updateMessage("Game drawn!!");
+            JOptionPane.showMessageDialog(board, "Match drawn!!!");
+        }
         
         Thread.sleep(500);
         board.setVisible(false);
@@ -77,7 +85,7 @@ public class checkerGame extends Game{
     
     @Override
     boolean isFinished() {
-        if(winner != null) return true;
+        if(winner != null || remainingMovesToDraw == 0) return true;
         
         int redCount = 0, blackCount = 0;
         for(int i=0; i<8; i++){
@@ -127,7 +135,7 @@ public class checkerGame extends Game{
     }
     
     void showMsg(String msg){
-        board.msgJLabel.setText(msg);
+        board.remainingMovesToDraw.setText(msg);
     }
 
     @Override

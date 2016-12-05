@@ -28,10 +28,12 @@ public class CheckerBoard extends JFrame implements ActionListener{
     JButton[] cell;
     ImageIcon red, black, currentPlayer;
     JPanel boardJPanel, statJPanel, allJPanel; 
-    JLabel statusJLabel, currentPlayerJLabel, msgJLabel, player1, player2, starter;
+    JLabel statusJLabel, currentPlayerJLabel, msgJLabel, player1, player2, starter, remainingMovesToDraw;
     
     boolean mouseClickEnable;
     int firstClickedRow, firstClickedCol, mouseClicked;
+    
+    boolean jumpByHumanAgent;
 
     public CheckerBoard() {
 
@@ -86,6 +88,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
         player1 = new JLabel("", red, RIGHT);
         player2 = new JLabel("", black, RIGHT);
         
+        remainingMovesToDraw = new JLabel();
         currentPlayerJLabel = new JLabel();
         msgJLabel = new JLabel();
         
@@ -93,6 +96,7 @@ public class CheckerBoard extends JFrame implements ActionListener{
         statusJPanel.add(starter);
         statusJPanel.add(player1);
         statusJPanel.add(player2);
+        statusJPanel.add(remainingMovesToDraw);
         statusJPanel.add(currentPlayerJLabel);
         statusJPanel.add(msgJLabel);
         
@@ -195,6 +199,8 @@ public class CheckerBoard extends JFrame implements ActionListener{
                 mouseClicked = 2;
                 move(cell, firstClickedRow, firstClickedCol, row, col);
                 msgJLabel.setText("");
+                
+                jumpByHumanAgent = Math.abs(firstClickedRow - row) == 2;
             }
             
         }

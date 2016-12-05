@@ -18,8 +18,7 @@ import javax.swing.JButton;
 public class MinimaxCheckersAgent extends Agent{
 
     int cutOffDepth;
-    //Integer alpha, beta;
-    //checkerGame game;
+    final int MAX_WIN = 10000, MAX_LOSE = -10000;
     
     int []fr = {1, 1, -1, -1, 2, 2, -2, -2};
     int []fc = {1, -1, -1, 1, 2, -2, -2, 2};
@@ -30,7 +29,7 @@ public class MinimaxCheckersAgent extends Agent{
     }
 
     @Override
-    public void makeMove(Game game) {
+    public boolean makeMove(Game game) {
         
         checkerGame cgame = (checkerGame)game;
         
@@ -39,16 +38,14 @@ public class MinimaxCheckersAgent extends Agent{
         
         action A = MAX_VALUE(cgame, cell, Integer.MIN_VALUE,Integer.MAX_VALUE, 0);
         
-        if(A.fromRow == -1){
+        System.out.println(A.toString());
+        
+        if(A.cantMove == true){
             cgame.winner = cgame.agent[1-role];
-            return;
+            return false;
         }
         
         /*********************** FOR SHOW *************************************/
-        //show move in console
-        System.err.println(""+A.fromRow+" "+A.fromCol);
-        System.err.println(""+A.toRow+" "+A.toCol);
-        
         cgame.board.cell[A.fromRow*8+A.fromCol].setBackground(Color.pink);
         cgame.board.cell[A.toRow*8+A.toCol].setBackground(Color.cyan);
         /**********************************************************************/
@@ -75,6 +72,7 @@ public class MinimaxCheckersAgent extends Agent{
         cgame.board.cell[A.toRow*8+A.toCol].setBackground(Color.white);
         /**********************************************************************/
         
+        return Math.abs(A.fromRow - A.toRow) == 2;
     }
 
     private action MAX_VALUE(checkerGame game, JButton[] cell, int alpha, int beta, int curDepth) {
@@ -87,13 +85,25 @@ public class MinimaxCheckersAgent extends Agent{
             return cur;
         }
         
+        /*
+        //terminal test win_for_max, i.e max wins (opponent has no moves) in current state
+        boolean max_already_won = false;
+        
+        if(moveAbleCheckers(game, cell, opponentPlayer) == 0){
+            System.err.println("MAX MOVE: MAX WIN");
+            cur.moveUtilVal = MAX_WIN;
+            if(curDepth > 0)return cur; //beacause though win, need to give a move
+            else max_already_won = true;
+        }
+        */
+
         for(int row=0; row<8; row++){
             for(int col=0; col<8; col++){
                 if(cell[row*8 + col].getIcon() == null || cell[row*8 + col].getIcon() != game.board.currentPlayer) continue;
                 
                 for(int i=0; i<8; i++){
                     int nrow = row + fr[i], ncol = col + fc[i];
-                    if(nrow < 0 || nrow > 7 || ncol < 0 || ncol > 7) continue;
+                    if(!validCell(nrow, ncol)) continue;
                     
                     if(game.board.validMove(cell, game.board.currentPlayer, nrow, ncol, row, col, false)){
                         candMoves++;
@@ -125,11 +135,15 @@ public class MinimaxCheckersAgent extends Agent{
                         
                         
                         if(mn.moveUtilVal > cur.moveUtilVal){
+                            //if(curDepth == 0) System.err.println("0: Setting cur");
+                            //System.err.println("Setting cur");
                             cur.moveUtilVal = mn.moveUtilVal;
-                            cur.fromRow = row;
-                            cur.fromCol = col;
-                            cur.toRow = nrow;
-                            cur.toCol = ncol;
+                            if(curDepth == 0){
+                                cur.fromRow = row;
+                                cur.fromCol = col;
+                                cur.toRow = nrow;
+                                cur.toCol = ncol;
+                            }
                         }
                         
                         if(cur.moveUtilVal >= beta) return cur;
@@ -139,9 +153,12 @@ public class MinimaxCheckersAgent extends Agent{
             }
         }
         
-        if(candMoves == 0){
-            //terminal state
-            cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
+        if(candMoves == 0){ // no move for MAX, max lose, handled in utility_for_MAX
+            //terminal state, lose_for_max
+            //cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
+            if(curDepth == 0) cur.cantMove = true;
+            //System.err.println("MAX MOVE: MAX: LOSE");
+            cur.moveUtilVal = MAX_LOSE;
         }
         
         return cur;
@@ -151,15 +168,23 @@ public class MinimaxCheckersAgent extends Agent{
         int candMoves = 0;
         action cur = new action(Integer.MAX_VALUE);
         
+        ImageIcon currentPlayer = null;
+        if(game.board.currentPlayer == game.board.red) currentPlayer = game.board.black;
+        else currentPlayer = game.board.red;
+        
         //depth limit
         if(curDepth >= cutOffDepth){
             cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
             return cur;
         }
         
-        ImageIcon currentPlayer = null;
-        if(game.board.currentPlayer == game.board.red) currentPlayer = game.board.black;
-        else currentPlayer = game.board.red;
+        //terminal test for MAX_LOSE/MIN_WIN
+        if(moveAbleCheckers(game, cell, game.board.currentPlayer) == 0){
+            cur.moveUtilVal = MAX_LOSE;
+            //System.err.println("MIN MOVE: MAX LOSE");
+            return cur;
+        }
+        
         
         for(int row=0; row<8; row++){
             for(int col=0; col<8; col++){
@@ -167,7 +192,7 @@ public class MinimaxCheckersAgent extends Agent{
                 
                 for(int i=0; i<8; i++){
                     int nrow = row + fr[i], ncol = col + fc[i];
-                    if(nrow < 0 || nrow > 7 || ncol < 0 || ncol > 7) continue;
+                    if(!validCell(nrow, ncol)) continue;
                     
                     if(game.board.validMove(cell, currentPlayer, nrow, ncol, row, col, false)){
                         candMoves++;
@@ -199,10 +224,6 @@ public class MinimaxCheckersAgent extends Agent{
                         
                         if(mx.moveUtilVal < cur.moveUtilVal){
                             cur.moveUtilVal = mx.moveUtilVal;
-                            cur.fromRow = row;
-                            cur.fromCol = col;
-                            cur.toRow = nrow;
-                            cur.toCol = ncol;
                         }
                         
                         if(cur.moveUtilVal <= alpha) return cur;
@@ -212,9 +233,11 @@ public class MinimaxCheckersAgent extends Agent{
             }
         }
         
-        if(candMoves == 0){
-            //terminal state
-            cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
+        if(candMoves == 0){ // no move available for opponent, so MAX_WIN (MIN_LOSE), handled in utility_for_MAX
+            //terminal state 
+            //cur.moveUtilVal = utility_for_MAX(game, cell, game.board.currentPlayer);
+            cur.moveUtilVal = MAX_WIN;
+            //System.err.println("MIN MOVE: MAX WIN");
         }
         
         return cur;
@@ -227,72 +250,115 @@ public class MinimaxCheckersAgent extends Agent{
         if(currentPlayer == game.board.red) opponentPlayer = game.board.black;
         else opponentPlayer = game.board.black;
         
-        int myNormalCheckers = 0, myKingCheckers = 0, myAttackerCheckers = 0, mySafeCheckers = 0, myCantMove = 0,
-            opNormalCheckers = 0, opKingCheckers = 0, opAttackerCheckers = 0, opSafeCheckers = 0, opCantMove = 0;
+        int myPostionVal = 0, opPositionVal = 0;
+        int myPawns = 0, opPawns = 0;
+        int myKings = 0, opKings = 0;
+        int myAttackers = 0, opAttackers = 0;
+        int myCantMove = 0, opCantMove = 0;
         
         for(int i=0; i<8; i++){
-            for(int j=0; j<8; j++){
+            for(int j=0; j<8;j++){
+                //player MAX
                 if(cell[i*8+j].getIcon() == currentPlayer){
-                    if("K".equals(cell[i*8+j].getText())) myKingCheckers++; /// 2 points for kings
-                    else myNormalCheckers++; /// 1 point for normal checker
+                    myPostionVal += cellValue(i, j);
+                    myPawns++;
+                    if("K".equals(cell[i*8+j].getText())) myKings++;
                     
-                    boolean canMove = false;
+                    boolean CantMove = true;
                     for(int k=0; k<8; k++){
-                        int ni = i+fr[i], nj = j+fc[j];
-                        if(ni < 0 || ni > 7 || nj < 0 || nj > 7) continue;
+                        int ni = i+fr[i], nj = j+fr[j];
+                        if(!validCell(ni, nj)) continue;
                         if(game.board.validMove(cell, currentPlayer, ni, nj, i, j, false)){
-                            canMove = true;
-                            if(k>4) myAttackerCheckers++; /// 1 additional point for attacker checker 
+                            CantMove = false;
+                            if(k>3) myAttackers++;
                         }
                     }
-                    
-                    if(!canMove) myCantMove++;
-                    if(i == 0 || j == 0 || i == 7 || j == 7) mySafeCheckers++; /// 1 point for safe checkers
+                    if(CantMove) myCantMove++;
                 }
                 
-                ///consider opponent checkers
+                //opponent player
                 else if(cell[i*8+j].getIcon() != null){
-                    if("K".equals(cell[i*8+j].getText())) opKingCheckers++; /// -2 points for opponent kings
-                    else opNormalCheckers++;  /// -1 point for normal opponent
+                    opPositionVal += cellValue(i, j);
+                    opPawns++;
+                    if("K".equals(cell[i*8+j].getText())) opKings++;
                     
-                    boolean canMove = false;
+                    boolean CantMove = true;
                     for(int k=0; k<8; k++){
-                        int ni = i+fr[i], nj = j+fc[j];
-                        if(ni < 0 || ni > 7 || nj < 0 || nj > 7) continue;
+                        int ni = i+fr[i], nj = j+fr[j];
+                        if(!validCell(ni, nj)) continue;
                         if(game.board.validMove(cell, opponentPlayer, ni, nj, i, j, false)){
-                            canMove = true;
-                            if(k>4) opAttackerCheckers++; /// -1 additional point for attacker opponent checker 
+                            CantMove = false;
+                            if(k>3) opAttackers++;
                         }
                     }
-                    
-                    if(!canMove) opCantMove++;
-                    if(i == 0 || j == 0 || i == 7 || j == 7) opSafeCheckers++; /// -1 point for safe opponent checkers
+                    if(CantMove) opCantMove++;
                 }
-                
             }
         }
         
-        int myTotalCheckers = myNormalCheckers + myKingCheckers, opTotalCheckers = opNormalCheckers + opKingCheckers;
+        //System.out.printf("%d %d %d\n", opPawns, opKings, opCantMove);
+        if(opPawns + opKings - opCantMove == 0) return MAX_WIN; // opponent has no move
+        if(myPawns + myKings - myCantMove == 0) return  MAX_LOSE; // MAX has no move
         
-        //special condition for win and lose
-        if(opTotalCheckers - opCantMove == 0) return 1000;
-        if(myTotalCheckers - myCantMove == 0) return -1000;
+        int myCheckers = myPawns + myKings, opCheckers = opPawns + opKings; 
         
-        return (myNormalCheckers + 2*myKingCheckers + 2*myAttackerCheckers + 2*mySafeCheckers) - 
-               (opNormalCheckers + 3*opKingCheckers + 3*opAttackerCheckers + opSafeCheckers) + 
-                opCantMove - 2*myCantMove;
+        //System.err.println("HERE");
+        int heuristicVal =  (myPawns + 2*myKings + myPostionVal)
+             - (myCantMove)
+             - (opPawns + 2*opKings + opAttackers + opPositionVal)
+             + (opCantMove);
+        
+        //if myCheckers is considerably greater than opponentCheckers, increase attacking tendency (propotional to checker count difference)
+        if( myCheckers - opCheckers > 4) return heuristicVal + (myCheckers - opCheckers) * myAttackers;
+        return heuristicVal;
+    }
+    
+    
+    int moveAbleCheckers(checkerGame game, JButton[] cell, ImageIcon Player){
+        int count = 0;
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if(cell[i*8+j].getIcon() != Player) continue;
+                for(int k=0; k<8; k++){
+                    int ni = i+fr[k], nj = j+fr[k];
+                    if(ni <0 || ni > 7 || nj < 0 || nj > 7) continue;
+                    if(game.board.validMove(cell, Player, ni, nj, i, j, false)) count++;
+                }
+            }
+        }
+        return count;
+    }
+    
+    int cellValue(int row, int col){
+        if(row == 0 || row == 7 || col == 0 || col == 7) return 4;
+        if(row == 1 || row == 6 || col == 1 || col == 6) return 3;
+        if(row == 2 || row == 5 || col == 2 || col == 5) return 2;
+        return 1;
+    }
+    
+    boolean validCell(int row, int col){
+        return !(row < 0 || row > 7 || col < 0 || col > 7);
     }
 
     class action{
         int fromRow, fromCol, toRow, toCol, moveUtilVal;
-
+        boolean cantMove;
         public action(int moveUtilVal) {
             fromRow = -1;
             fromCol = -1;
             toRow = -1;
             toCol = -1;
+            cantMove = false;
             this.moveUtilVal = moveUtilVal;
         }
+
+        @Override
+        public String toString() {
+            return "action{" + "fromRow=" + fromRow + ", fromCol=" + fromCol + ", toRow=" + toRow + 
+                    ", toCol=" + toCol + ", moveUtilVal=" + moveUtilVal + ", cantMove=" + cantMove + '}';
+        }
+
+        
     }
 
 }
